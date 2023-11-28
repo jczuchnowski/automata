@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"time"
 
 	"golang.org/x/term"
 )
@@ -13,25 +14,18 @@ func main() {
 	if len(args) == 0 {
 		panic("You have to choose a rule number between 1 and 255")
 	}
-	println("----")
-	println(int(os.Stdout.Fd()))
-	println("----")
 
 	ruleset := calculateRuleset(args[1])
 
 	fmt.Println(ruleset)
 
-	//current := []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 	current := firstGeneration()
 	printGeneration(current)
 
-	n := 100
-	count := 0
-
-	for count < n {
+	for true {
 		current = nextGeneration(current[:], ruleset)
-		count = count + 1
 		printGeneration(current)
+		time.Sleep(50 * time.Millisecond)
 	}
 }
 
@@ -42,8 +36,6 @@ func firstGeneration() []int {
 	}
 
 	gen := make([]int, width)
-	a := width / 2
-	fmt.Println("index %d", a)
 	gen[width/2] = 1
 	return gen
 }
@@ -92,9 +84,12 @@ func printGeneration(gen []int) {
 	for i := 0; i < len(gen); i++ {
 		n := gen[i]
 		if n == 0 {
-			fmt.Print(" ")
+			fmt.Print("\u25a1")
+			//fmt.Print(" ")
 		} else {
-			fmt.Print("\u2588")
+			fmt.Print("\u25a3")
+			//fmt.Print("\u25af")
+			//fmt.Print("\u2588")
 		}
 	}
 	fmt.Print("\n")
