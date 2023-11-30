@@ -18,12 +18,13 @@ func TestNextGeneration(t *testing.T) {
 		{0, 0, 0}: 0,
 	}
 
-	testGeneration := [5]int{0, 0, 1, 0, 0}
+	testAutomaton := automaton{testRuleSet, []int{0, 0, 1, 0, 0}}
 
 	//when
-	result := nextGeneration(testGeneration[:], testRuleSet)
+	testAutomaton.Next()
 
 	//then
+	result := testAutomaton.currentGen
 	expected := [5]int{0, 0, 0, 0, 0}
 	if !reflect.DeepEqual(result, expected[:]) {
 		t.Errorf("Result was incorrect, got: %v, want: %v.", result, expected)

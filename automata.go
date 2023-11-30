@@ -9,22 +9,67 @@ import (
 	"golang.org/x/term"
 )
 
+type automaton struct {
+	ruleSet    map[[3]int]int
+	currentGen []int
+}
+
+func newAutomaton(rule string) *automaton {
+	ruleSet := calculateRuleset(rule)
+	firstGen := firstGeneration()
+	a := automaton{ruleSet, firstGen}
+	return &a
+}
+
+func (a *automaton) Next() {
+	extGen := append(append(a.currentGen[0:1], a.currentGen...), a.currentGen[len(a.currentGen)-1:]...)
+	result := make([]int, len(a.currentGen))
+	for i := 0; i < len(a.currentGen); i++ {
+		slice := extGen[i : i+3]
+		var key [3]int
+		copy(key[:], slice[:])
+		result[i] = a.ruleSet[key]
+	}
+	fmt.Print(result)
+	a.currentGen = result
+	fmt.Print(a.currentGen)
+}
+
+func (a *automaton) Show() {
+	for i := 0; i < len(a.currentGen); i++ {
+		n := a.currentGen[i]
+		if n == 0 {
+			fmt.Print("\u25a1")
+			//fmt.Print(" ")
+		} else {
+			fmt.Print("\u25a3")
+			//fmt.Print("\u25af")
+			//fmt.Print("\u2588")
+		}
+	}
+	fmt.Print("\n")
+}
+
 func main() {
 	args := os.Args
 	if len(args) == 0 {
 		panic("You have to choose a rule number between 1 and 255")
 	}
 
-	ruleset := calculateRuleset(args[1])
+	automaton := newAutomaton(args[1])
 
-	fmt.Println(ruleset)
+	//ruleset := calculateRuleset(args[1])
 
-	current := firstGeneration()
-	printGeneration(current)
+	//fmt.Println(ruleset)
+
+	//current := firstGeneration()
+	//printGeneration(current)
 
 	for true {
-		current = nextGeneration(current[:], ruleset)
-		printGeneration(current)
+		automaton.Next()
+		automaton.Show()
+		//current = nextGeneration(current[:], ruleset)
+		//printGeneration(current)
 		time.Sleep(50 * time.Millisecond)
 	}
 }
@@ -66,31 +111,4 @@ func calculateRuleset(ruleNumber string) map[[3]int]int {
 		{0, 0, 1}: ints[6],
 		{0, 0, 0}: ints[7],
 	}
-}
-
-func nextGeneration(gen []int, ruleset map[[3]int]int) []int {
-	extGen := append(append(gen[0:1], gen...), gen[len(gen)-1:]...)
-	result := make([]int, len(gen))
-	for i := 0; i < len(gen); i++ {
-		slice := extGen[i : i+3]
-		var key [3]int
-		copy(key[:], slice[:])
-		result[i] = ruleset[key]
-	}
-	return result
-}
-
-func printGeneration(gen []int) {
-	for i := 0; i < len(gen); i++ {
-		n := gen[i]
-		if n == 0 {
-			fmt.Print("\u25a1")
-			//fmt.Print(" ")
-		} else {
-			fmt.Print("\u25a3")
-			//fmt.Print("\u25af")
-			//fmt.Print("\u2588")
-		}
-	}
-	fmt.Print("\n")
 }
